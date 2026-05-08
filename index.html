@@ -46,47 +46,37 @@
     </div>
 
     <script>
-        function openRazorpay() {
-            // Setup dynamic base URL for local testing or CDN
-            const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
-
-            var options = {
-                // 1. YOUR RAZORPAY KEY ID
-                "key": "rzp_test_us_Sm7G1jPqW3R8MJ; wQOxVhH5ljcwvzvCJL3QJYJZ ", 
-                
-                // 2. AMOUNT IN PAISE (100 = ₹1.00)
-                "amount": "100", 
-                "currency": "INR",
-                "name": "Premium Content",
-                "description": "Micropayment Test",
-                
-                // 3. SUCCESS ROUTING
-                "handler": function (response) {
-                    // This function runs only on a successful payment
-                    console.log("Success Payment ID: ", response.razorpay_payment_id);
-                    window.location.href = baseUrl + "success.html";
-                },
-
-                // 4. CANCEL ROUTING
-                "modal": {
-                    "ondismiss": function() {
-                        // This function runs if the user closes the modal / clicks back
-                        window.location.href = baseUrl + "failed.html";
-                    }
+     function openRazorpay() {
+        var options = {
+            "key": "rzp_test_us_Sm7G1jPqW3R8MJ; wQOxVhH5ljcwvzvCJL3QJYJZ", 
+            "amount": "100", 
+            "currency": "INR",
+            "name": "Micropayment Test",
+            "handler": function (response) {
+                // Success redirect
+                window.location.href = "unlock.html";
+            },
+            "modal": {
+                "ondismiss": function() {
+                    // Cancel redirect
+                    window.location.href = "failure.html";
                 }
-            };
+            }
+        };
 
-            // Initialize and open Razorpay
+        try {
             var rzp1 = new Razorpay(options);
             
-            // 5. FAILURE ROUTING (Card declined, etc.)
             rzp1.on('payment.failed', function (response){
-                console.log("Error: ", response.error.description);
-                window.location.href = baseUrl + "failure.html";
+                // Failure redirect
+                window.location.href = "failure.html";
             });
 
             rzp1.open();
+        } catch (error) {
+            alert("Razorpay Failed to Load. Check your API Key and ensure you are using a web server/CDN.");
         }
+    }
     </script>
 </body>
 </html>
