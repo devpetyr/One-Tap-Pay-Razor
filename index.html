@@ -55,11 +55,11 @@ function openRazorpay(mode) {
     name: "Micropayment Test",
 
     handler: function () {
-      window.location.href = "unlock.html";
+      window.location.href = "success.html";
     },
     modal: {
       ondismiss: function () {
-        window.location.href = "failure.html";
+        window.location.href = "failed.html";
       }
     },
 
@@ -83,7 +83,7 @@ function openRazorpay(mode) {
 
   const rzp1 = new Razorpay(options);
   rzp1.on("payment.failed", function () {
-    window.location.href = "failure.html";
+    window.location.href = "failed.html";
   });
   rzp1.open();
 }
