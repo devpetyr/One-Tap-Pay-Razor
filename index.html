@@ -27,15 +27,50 @@
    <script>
 function payNow() {
   const options = {
-    key: "rzp_test_us_Sm7G1jPqW3R8MJ",
-    amount: 100,
-    currency: "INR",
-    name: "Micropayment Test",
-    handler: () => location.href = "success.html",
-    modal: { ondismiss: () => location.href = "failed.html" }
+    "key": "rzp_test_us_Sm7G1jPqW3R8MJ", 
+    "amount": "100",          // Use string "100" to be safe with decimals
+    "currency": "INR",
+    "name": "Micropayment Test",
+    
+    "handler": function (response){
+      window.location.href = "success.html";
+    },
+    "modal": {
+      "ondismiss": function(){
+        window.location.href = "failed.html";
+      }
+    },
+
+    // ✅ PREFILL SECTION ADDED HERE
+    "prefill": {
+      "name": "John Doe",     // Customer Name
+      "email": "user@example.com", // Customer Email
+      "contact": "9999999999" // Customer Phone Number (Contact)
+    },
+
+    /* 
+       By NOT adding 'method' restrictions here, 
+       Razorpay defaults to showing ALL enabled payment methods
+       (UPI, GPay, Apple Pay, Card, Wallet).
+    */
   };
-  new Razorpay(options).open();
+
+  try {
+    var rzp1 = new Razorpay(options);
+    
+    rzp1.on("payment.failed", function(response){
+      alert("Payment Failed");
+      console.error(response.error);
+      window.location.href = "failed.html";
+    });
+
+    rzp1.open();
+  } catch (error) {
+    console.error(error);
+    alert("Checkout Error");
+  }
 }
+
 </script>
 </body>
 </html>
