@@ -34,66 +34,50 @@
 
     <script>
      function openRazorpay() {
-        const options = {
-            "key": "rzp_test_us_Sm7G1jPqW3R8MJ", 
-            "amount": "100", 
-            "currency": "INR",
-            "name": "Micropayment Test",
-            "description": "Payment for Service",
+    const options = {
+        "key": "rzp_test_us_Sm7G1jPqW3R8MJ", 
+        "amount": "100", 
+        "currency": "INR",
+        "name": "Micropayment Test",
+        "description": "Payment for Service",
 
-            handler: function (response){
-                window.location.href = "success.html";
-            },
-            modal: {
-                "ondismiss": function(){
-                    window.location.href = "failed.html";
-                }
-            },
-
-            // THIS IS THE KEY FIX TO REMOVE CARDS
-            "method": {
-                "card": true,      // Hides Credit/Debit Card input
-                "netbanking": false,// Hides Internet Banking
-                "wallet": true     // Hides existing Wallets (optional)
-            },
-
-            config: {
-                display: {
-                    blocks: {
-                        upi: {
-                            name: "Pay via UPI",
-                            instruments: [
-                                { method: "upi" },
-                                { method: "qr" } // Shows QR codes too
-                            ],
-                            heading: "UPI Payment"
-                        }
-                        // NOTE: "card" block removed here to prevent UI generation
-                    },
-                    // Force UPI Block to show first
-                    sequence: ["block.upi"], 
-                    preferences: {
-                        show_default_blocks: false
-                    }
-                }
-            }
-        };
-
-        try {
-            var rzp1 = new Razorpay(options);
-            
-            rzp1.on("payment.failed", function(response){
-                alert("Payment Failed");
-                console.error(response.error.description);
+        handler: function (response){
+            window.location.href = "success.html";
+        },
+        modal: {
+            "ondismiss": function(){
                 window.location.href = "failed.html";
-            });
+            }
+        },
 
-            rzp1.open();
-        } catch (error) {
-            console.error("Checkout Error:", error);
-            alert("Could not load checkout. Check Console.");
+        "method": {
+            "card": true,       // Allows Credit/Debit Cards
+            "upi": true,        // Allows UPI (Google Pay, PhonePe, etc.)
+            "wallet": true,     // Allows Wallets
+            "netbanking": true  // Allows Bank Transfer
+        },
+        "prefill": {
+            "email": "customer@example.com",
+            "contact": "9999999999"
         }
+    };
+
+    try {
+        var rzp1 = new Razorpay(options);
+        
+        rzp1.on("payment.failed", function(response){
+            alert("Payment Failed: " + response.error.description);
+            console.error(response.error);
+            window.location.href = "failed.html";
+        });
+
+        rzp1.open();
+    } catch (error) {
+        console.error("Checkout Error:", error);
+        alert("Could not load checkout.");
     }
+}
+
     </script>
 </body>
 </html>
