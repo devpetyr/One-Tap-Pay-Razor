@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Micropayment Test | Select Payment</title>
+    <title>Micropayment Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Razorpay Checkout -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         body { animation: fadeIn 0.4s ease-in-out; }
@@ -15,78 +14,86 @@
 <body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
 
     <div class="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center border border-gray-100">
-        <div class="mb-4">
-            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Test Mode</span>
-        </div>
-        <h1 class="text-2xl font-extrabold text-gray-900 mb-2">Unlock Access</h1>
-        <p class="text-gray-500 mb-8 text-sm">Select your preferred 1-tap payment method.</p>
+        <h1 class="text-2xl font-extrabold text-gray-900 mb-2">Select Payment</h1>
+        <p class="text-gray-500 mb-8 text-sm">Choose Google Pay, UPI, or Apple Pay.</p>
         
         <div class="space-y-4">
-            <!-- APPLE PAY BUTTON -->
-            <button onclick="openRazorpay('apple')" 
+            <!-- GOOGLE PAY / UPI -->
+            <button onclick="openRazorpay()" 
+               class="flex items-center justify-center w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-xl text-lg px-5 py-3.5 transition-all shadow-sm active:scale-95">
+                📱 Pay with UPI / GPay
+            </button>
+
+            <!-- APPLE PAY -->
+            <button onclick="openRazorpay()" 
                class="flex items-center justify-center w-full text-white bg-black hover:bg-gray-900 font-medium rounded-xl text-lg px-5 py-3.5 transition-all shadow-sm active:scale-95">
-                <!-- SVG Icon removed for brevity, keep yours here -->
-                🍎 <span class="ml-2">Apple Pay</span>
-            </button>
-
-            <!-- GOOGLE PAY BUTTON -->
-            <button onclick="openRazorpay('google')" 
-               class="flex items-center justify-center w-full text-gray-900 bg-white border border-gray-300 hover:bg-gray-50 font-medium rounded-xl text-lg px-5 py-3.5 transition-all shadow-sm active:scale-95">
-                <!-- SVG Icon removed for brevity, keep yours here -->
-                <svg class="h-5 w-auto mr-2" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5,10V17H6.5V10H17.5z M20,7.5A2.5,2.5,0,0,1,22.5,10v4a2.5,2.5,0,0,1-2.5,2.5h-5V20h5a5,5,0,0,0,5-5v-4a5,5,0,0,0-5-5h-5v2.5H20Z"/></svg>
-                Google Pay
-            </button>
-
-            <!-- UPI BUTTON -->
-            <button onclick="openRazorpay('upi')" 
-               class="flex items-center justify-center w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-xl text-lg px-5 py-3.5 transition-all shadow-sm active:scale-95">
-                <!-- SVG Icon removed for brevity, keep yours here -->
-                ⚡ <span class="ml-2">UPI</span>
+                🍎 Apple Pay
             </button>
         </div>
     </div>
 
     <script>
-function openRazorpay(mode) {
-  const options = {
-    key: "rzp_test_us_Sm7G1jPqW3R8MJ",
-    amount: 100,
-    currency: "INR",
-    name: "Micropayment Test",
+     function openRazorpay() {
+        const options = {
+            "key": "rzp_test_us_Sm7G1jPqW3R8MJ", 
+            "amount": "100", 
+            "currency": "INR",
+            "name": "Micropayment Test",
+            "description": "Payment for Service",
 
-    handler: function () {
-      window.location.href = "success.html";
-    },
-    modal: {
-      ondismiss: function () {
-        window.location.href = "failed.html";
-      }
-    },
+            handler: function (response){
+                window.location.href = "unlock.html";
+            },
+            modal: {
+                "ondismiss": function(){
+                    window.location.href = "failure.html";
+                }
+            },
 
-    config: {
-      display: {
-        blocks: {
-          upi: {
-            name: "Pay via UPI",
-            instruments: [{ method: "upi" }]
-          },
-          card: {
-            name: "Pay via Card",
-            instruments: [{ method: "card" }]
-          }
-        },
-        sequence: mode === "upi" ? ["block.upi"] : ["block.card"],
-        preferences: { show_default_blocks: false }
-      }
+            // THIS IS THE KEY FIX TO REMOVE CARDS
+            "method": {
+                "card": false,      // Hides Credit/Debit Card input
+                "netbanking": false,// Hides Internet Banking
+                "wallet": false     // Hides existing Wallets (optional)
+            },
+
+            config: {
+                display: {
+                    blocks: {
+                        upi: {
+                            name: "Pay via UPI",
+                            instruments: [
+                                { method: "upi" },
+                                { method: "qr" } // Shows QR codes too
+                            ],
+                            heading: "UPI Payment"
+                        }
+                        // NOTE: "card" block removed here to prevent UI generation
+                    },
+                    // Force UPI Block to show first
+                    sequence: ["block.upi"], 
+                    preferences: {
+                        show_default_blocks: false
+                    }
+                }
+            }
+        };
+
+        try {
+            var rzp1 = new Razorpay(options);
+            
+            rzp1.on("payment.failed", function(response){
+                alert("Payment Failed");
+                console.error(response.error.description);
+                window.location.href = "failure.html";
+            });
+
+            rzp1.open();
+        } catch (error) {
+            console.error("Checkout Error:", error);
+            alert("Could not load checkout. Check Console.");
+        }
     }
-  };
-
-  const rzp1 = new Razorpay(options);
-  rzp1.on("payment.failed", function () {
-    window.location.href = "failed.html";
-  });
-  rzp1.open();
-}
     </script>
 </body>
 </html>
