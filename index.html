@@ -47,49 +47,46 @@
     </div>
 
     <script>
-     function openRazorpay(methodType) {
-        var options = {
-            "key": "rzp_test_us_Sm7G1jPqW3R8MJ", // Your Test Key
-            "amount": "100", // Amount in paisa (1 INR = 100)
-            "currency": "INR",
-            "name": "Micropayment Test",
-            "description": "Payment for Service",
-            
-            // --- THE FIX IS HERE ---
-            // We explicitly disable 'card' and 'netbanking'. 
-            // By doing this, Razorpay defaults to UPI, which includes GPay, Paytm, etc.
-            "method": {
-                "card": false,
-                "wallet": false,
-                "netbanking": false
-            },
-            // -----------------------
-            
-            "handler": function (response) {
-                console.log("Success:", response);
-                window.location.href = "unlock.html";
-            },
-            "modal": {
-                "ondismiss": function() {
-                    window.location.href = "failure.html";
-                }
-            }
-        };
+function openRazorpay(mode) {
+  const options = {
+    key: "rzp_test_us_Sm7G1jPqW3R8MJ",
+    amount: 100,
+    currency: "INR",
+    name: "Micropayment Test",
 
-        try {
-            var rzp1 = new Razorpay(options);
-            
-            rzp1.on('payment.failed', function (response){
-                alert("Payment Failed: " + response.error.description);
-                window.location.href = "failure.html";
-            });
+    handler: function () {
+      window.location.href = "unlock.html";
+    },
+    modal: {
+      ondismiss: function () {
+        window.location.href = "failure.html";
+      }
+    },
 
-            rzp1.open();
-        } catch (error) {
-            console.error(error);
-            alert("Razorpay Script Error");
-        }
+    config: {
+      display: {
+        blocks: {
+          upi: {
+            name: "Pay via UPI",
+            instruments: [{ method: "upi" }]
+          },
+          card: {
+            name: "Pay via Card",
+            instruments: [{ method: "card" }]
+          }
+        },
+        sequence: mode === "upi" ? ["block.upi"] : ["block.card"],
+        preferences: { show_default_blocks: false }
+      }
     }
+  };
+
+  const rzp1 = new Razorpay(options);
+  rzp1.on("payment.failed", function () {
+    window.location.href = "failure.html";
+  });
+  rzp1.open();
+}
     </script>
 </body>
 </html>
