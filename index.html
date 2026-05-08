@@ -42,11 +42,11 @@
             "description": "Payment for Service",
 
             handler: function (response){
-                window.location.href = "unlock.html";
+                window.location.href = "success.html";
             },
             modal: {
                 "ondismiss": function(){
-                    window.location.href = "failure.html";
+                    window.location.href = "failed.html";
                 }
             },
 
@@ -85,7 +85,7 @@
             rzp1.on("payment.failed", function(response){
                 alert("Payment Failed");
                 console.error(response.error.description);
-                window.location.href = "failure.html";
+                window.location.href = "failed.html";
             });
 
             rzp1.open();
