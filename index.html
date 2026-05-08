@@ -14,70 +14,28 @@
 <body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
 
     <div class="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full text-center border border-gray-100">
-        <h1 class="text-2xl font-extrabold text-gray-900 mb-2">Select Payment</h1>
-        <p class="text-gray-500 mb-8 text-sm">Choose Google Pay, UPI, or Apple Pay.</p>
+        <h1 class="text-2xl font-extrabold text-gray-900 mb-2">Unlock Access</h1>
+        <p class="text-gray-500 mb-8 text-sm">Secure payment to continue.</p>
         
-        <div class="space-y-4">
-            <!-- GOOGLE PAY / UPI -->
-            <button onclick="openRazorpay()" 
-               class="flex items-center justify-center w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-xl text-lg px-5 py-3.5 transition-all shadow-sm active:scale-95">
-                📱 Pay with UPI / GPay
-            </button>
-
-            <!-- APPLE PAY -->
-            <button onclick="openRazorpay()" 
-               class="flex items-center justify-center w-full text-white bg-black hover:bg-gray-900 font-medium rounded-xl text-lg px-5 py-3.5 transition-all shadow-sm active:scale-95">
-                🍎 Apple Pay
-            </button>
-        </div>
+        <!-- ONLY ONE BUTTON REQUIRED -->
+        <button onclick="openRazorpay()" 
+           class="flex items-center justify-center w-full text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-xl text-lg px-5 py-3.5 transition-all shadow-md active:scale-95">
+           Pay Now
+        </button>
     </div>
 
-    <script>
-     function openRazorpay() {
-    const options = {
-        "key": "rzp_test_us_Sm7G1jPqW3R8MJ", 
-        "amount": "100", 
-        "currency": "INR",
-        "name": "Micropayment Test",
-        "description": "Payment for Service",
-
-        handler: function (response){
-            window.location.href = "success.html";
-        },
-        modal: {
-            "ondismiss": function(){
-                window.location.href = "failed.html";
-            }
-        },
-
-        "method": {
-            "card": true,       // Allows Credit/Debit Cards
-            "upi": true,        // Allows UPI (Google Pay, PhonePe, etc.)
-            "wallet": true,     // Allows Wallets
-            "netbanking": true  // Allows Bank Transfer
-        },
-        "prefill": {
-            "email": "customer@example.com",
-            "contact": "9999999999"
-        }
-    };
-
-    try {
-        var rzp1 = new Razorpay(options);
-        
-        rzp1.on("payment.failed", function(response){
-            alert("Payment Failed: " + response.error.description);
-            console.error(response.error);
-            window.location.href = "failed.html";
-        });
-
-        rzp1.open();
-    } catch (error) {
-        console.error("Checkout Error:", error);
-        alert("Could not load checkout.");
-    }
+   <script>
+function payNow() {
+  const options = {
+    key: "rzp_test_us_Sm7G1jPqW3R8MJ",
+    amount: 100,
+    currency: "INR",
+    name: "Micropayment Test",
+    handler: () => location.href = "success.html",
+    modal: { ondismiss: () => location.href = "failed.html" }
+  };
+  new Razorpay(options).open();
 }
-
-    </script>
+</script>
 </body>
 </html>
